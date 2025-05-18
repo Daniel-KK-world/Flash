@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Speed Learning with The Flash</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --flash-red: #e63946;
+      --flash-yellow: #ffd700;
+      --flash-dark: #1a1a2e;
+      --flash-light: #f8f9fa;
+    }
+    
+    body {
+      background: var(--flash-dark) url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxleHBsb3JlLWZlZWR8MXx8fGVufDB8fHx8fA%3D%3D&w=1000&q=80') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      min-height: 100vh;
+      position: relative;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: -1;
+    }
+    
+    .navbar {
+      background: linear-gradient(90deg, var(--flash-dark) 0%, var(--flash-red) 50%, var(--flash-yellow) 100%);
+      box-shadow: 0 4px 20px rgba(230, 57, 70, 0.3);
+    }
+    
+    .navbar-brand {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 1.8rem;
+      background: linear-gradient(to right, #fff 20%, var(--flash-yellow) 40%, var(--flash-yellow) 60%, #fff 80%);
+      background-size: 200% auto;
+      color: #000;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 3s linear infinite;
+    }
+    
+    @keyframes shine {
+      to {
+        background-position: 200% center;
+      }
+    }
+    
+    /* Flashcard Styles */
+    .flash-card-container {
+      perspective: 1000px;
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    
+    .flash-card {
+      width: 100%;
+      min-height: 300px;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+      cursor: pointer;
+      position: relative;
+      border-radius: 15px;
+    }
+    
+    .flash-card.flipped {
+      transform: rotateY(180deg);
+    }
+    
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .card-front {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 2px solid var(--flash-yellow);
+    }
+    
+    .card-back {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 2px solid var(--flash-red);
+      transform: rotateY(180deg);
+    }
+    
+    .card-text {
+      font-size: 1.5rem;
+      font-weight: 600;
+      text-align: center;
+      padding: 20px;
+    }
+    
+    .card-front .card-text {
+      color: var(--flash-yellow);
+    }
+    
+    .card-back .card-text {
+      color: var(--flash-red);
+    }
+    
+    /* Button Styles */
+    .btn-flash {
+      background-color: var(--flash-red);
+      color: white;
+      border: none;
+      padding: 0.5rem 1.5rem;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .btn-flash:hover {
+      background-color: var(--flash-yellow);
+      color: var(--flash-dark);
+      transform: translateY(-2px);
+    }
+    
+    .btn-flash-secondary {
+      background-color: transparent;
+      border: 2px solid var(--flash-yellow);
+      color: var(--flash-yellow);
+    }
+    
+    .btn-flash-secondary:hover {
+      background-color: var(--flash-yellow);
+      color: var(--flash-dark);
+    }
+    
+    /* Progress Bar */
+    .progress-container {
+      width: 100%;
+      max-width: 500px;
+      margin: 20px auto;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      height: 10px;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      border-radius: 10px;
+      background: linear-gradient(90deg, var(--flash-red), var(--flash-yellow));
+      transition: width 0.3s ease;
+    }
+    
+    /* Deck Selection */
+    .deck-card {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--flash-yellow);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .deck-card:hover {
+      background: rgba(230, 57, 70, 0.2);
+      transform: translateY(-3px);
+    }
+    
+    .deck-card.active {
+      background: rgba(230, 57, 70, 0.4);
+      border: 1px solid var(--flash-red);
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .navbar-brand {
+        font-size: 1.5rem;
+      }
+      
+      .flash-card {
+        min-height: 250px;
+      }
+      
+      .card-text {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <i class="fas fa-bolt me-2"></i>Speed Learning
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="#" id="studyTab">Study</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" id="decksTab">Decks</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" id="statsTab">Stats</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Study View -->
+    <div id="studyView">
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      
+      <div class="flash-card-container mb-4">
+        <div id="flashcard" class="flash-card">
+          <div class="card-face card-front">
+            <h5 class="card-text" id="questionText">Click to flip</h5>
+          </div>
+          <div class="card-face card-back">
+            <h5 class="card-text" id="answerText"></h5>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-center gap-3 flex-wrap mb-4">
+        <button class="btn btn-flash-secondary" id="prevBtn">
+          <i class="fas fa-arrow-left me-2"></i>Previous
+        </button>
+        <button class="btn btn-flash" id="nextBtn">
+          Next<i class="fas fa-arrow-right ms-2"></i>
+        </button>
+        <button class="btn btn-flash" id="addCardBtn">
+          <i class="fas fa-plus me-2"></i>Add Card
+        </button>
+      </div>
+    </div>
+
+    <!-- Decks View -->
+    <div id="decksView" style="display: none;">
+      <h3 class="text-center mb-4">Your Decks</h3>
+      <div id="decksContainer" class="mb-4">
+        <!-- Decks will be added here dynamically -->
+      </div>
+      <div class="text-center">
+        <button class="btn btn-flash" id="addDeckBtn">
+          <i class="fas fa-plus me-2"></i>Add New Deck
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats View -->
+    <div id="statsView" style="display: none;">
+      <h3 class="text-center mb-4">Your Statistics</h3>
+      <div class="card bg-dark text-light mb-4">
+        <div class="card-body">
+          <h5 class="card-title">Study Progress</h5>
+          <div class="progress mb-3" style="height: 20px;">
+            <div id="masteryProgress" class="progress-bar bg-success" role="progressbar"></div>
+          </div>
+          <p>Cards mastered: <span id="masteredCount">0</span>/<span id="totalCards">0</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Card Modal -->
+  <div class="modal fade" id="cardModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content bg-dark text-light">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title">Add New Flashcard</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="questionInput" class="form-label">Question</label>
+            <textarea class="form-control bg-secondary text-light" id="questionInput" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="answerInput" class="form-label">Answer</label>
+            <textarea class="form-control bg-secondary text-light" id="answerInput" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer border-secondary">
+          <button type="button" class="btn btn-flash-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-flash" id="saveCardBtn">Save Card</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Deck Modal -->
+  <div class="modal fade" id="deckModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content bg-dark text-light">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title">Add New Deck</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="deckNameInput" class="form-label">Deck Name</label>
+            <input type="text" class="form-control bg-secondary text-light" id="deckNameInput">
+          </div>
+        </div>
+        <div class="modal-footer border-secondary">
+          <button type="button" class="btn btn-flash-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-flash" id="saveDeckBtn">Save Deck</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // App State
+      let state = {
+        decks: JSON.parse(localStorage.getItem('flashcardDecks')) || {
+          'Default': {
+            cards: [
+              { question: "What is the capital of France?", answer: "Paris" },
+              { question: "2 + 2?", answer: "4" },
+              { question: "What language is used in web styling?", answer: "CSS" }
+            ],
+            stats: {
+              mastered: 0,
+              seen: 0
+            }
+          }
+        },
+        currentDeck: 'Default',
+        currentCardIndex: 0,
+        isFlipped: false
+      };
+
+      // DOM Elements
+      const elements = {
+        studyView: document.getElementById('studyView'),
+        decksView: document.getElementById('decksView'),
+        statsView: document.getElementById('statsView'),
+        flashcard: document.getElementById('flashcard'),
+        questionText: document.getElementById('questionText'),
+        answerText: document.getElementById('answerText'),
+        progressBar: document.getElementById('progressBar'),
+        prevBtn: document.getElementById('prevBtn'),
+        nextBtn: document.getElementById('nextBtn'),
+        addCardBtn: document.getElementById('addCardBtn'),
+        saveCardBtn: document.getElementById('saveCardBtn'),
+        questionInput: document.getElementById('questionInput'),
+        answerInput: document.getElementById('answerInput'),
+        cardModal: new bootstrap.Modal(document.getElementById('cardModal')),
+        decksContainer: document.getElementById('decksContainer'),
+        addDeckBtn: document.getElementById('addDeckBtn'),
+        deckModal: new bootstrap.Modal(document.getElementById('deckModal')),
+        saveDeckBtn: document.getElementById('saveDeckBtn'),
+        deckNameInput: document.getElementById('deckNameInput'),
+        studyTab: document.getElementById('studyTab'),
+        decksTab: document.getElementById('decksTab'),
+        statsTab: document.getElementById('statsTab'),
+        masteryProgress: document.getElementById('masteryProgress'),
+        masteredCount: document.getElementById('masteredCount'),
+        totalCards: document.getElementById('totalCards')
+      };
+
+      // Initialize the app
+      init();
+
+      // Event Listeners
+      elements.flashcard.addEventListener('click', flipCard);
+      elements.prevBtn.addEventListener('click', showPreviousCard);
+      elements.nextBtn.addEventListener('click', showNextCard);
+      elements.addCardBtn.addEventListener('click', showAddCardModal);
+      elements.saveCardBtn.addEventListener('click', saveNewCard);
+      elements.addDeckBtn.addEventListener('click', showAddDeckModal);
+      elements.saveDeckBtn.addEventListener('click', saveNewDeck);
+      elements.studyTab.addEventListener('click', () => switchView('study'));
+      elements.decksTab.addEventListener('click', () => switchView('decks'));
+      elements.statsTab.addEventListener('click', () => switchView('stats'));
+      document.addEventListener('keydown', handleKeyPress);
+
+      // Initialization
+      function init() {
+        renderDecks();
+        updateCard();
+        updateProgress();
+        updateStats();
+        switchView('study');
+      }
+
+      // Core Functions
+      function flipCard() {
+        state.isFlipped = !state.isFlipped;
+        if (state.isFlipped) {
+          elements.flashcard.classList.add('flipped');
+        } else {
+          elements.flashcard.classList.remove('flipped');
+        }
+      }
+
+    function updateCard() {
+        const deck = state.decks[state.currentDeck];
+        if (!deck || deck.cards.length === 0) {
+            elements.questionText.innerHTML = "No cards available";
+            elements.answerText.innerHTML = "Add some flashcards!";
+            return;
+        }
+        
+        const currentCard = deck.cards[state.currentCardIndex];
+        elements.questionText.innerHTML = currentCard.question;
+        elements.answerText.innerHTML = currentCard.answer;
+        
+        // Reset to front view
+        if (state.isFlipped) {
+            elements.flashcard.classList.remove('flipped');
+            state.isFlipped = false;
+        }
+        }
+      function updateProgress() {
+        const deck = state.decks[state.currentDeck];
+        if (!deck || deck.cards.length === 0) {
+          elements.progressBar.style.width = '0%';
+          return;
+        }
+        const progress = ((state.currentCardIndex + 1) / deck.cards.length) * 100;
+        elements.progressBar.style.width = `${progress}%`;
+      }
+
+      function updateStats() {
+        const deck = state.decks[state.currentDeck];
+        if (!deck) return;
+        
+        const total = deck.cards.length;
+        const mastered = deck.stats.mastered;
+        
+        elements.totalCards.textContent = total;
+        elements.masteredCount.textContent = mastered;
+        elements.masteryProgress.style.width = `${(mastered / total) * 100}%`;
+      }
+
+      function showPreviousCard() {
+        const deck = state.decks[state.currentDeck];
+        if (!deck || deck.cards.length === 0) return;
+        
+        state.currentCardIndex = (state.currentCardIndex - 1 + deck.cards.length) % deck.cards.length;
+        updateCard();
+        updateProgress();
+        saveState();
+      }
+
+      function showNextCard() {
+        const deck = state.decks[state.currentDeck];
+        if (!deck || deck.cards.length === 0) return;
+        
+        state.currentCardIndex = (state.currentCardIndex + 1) % deck.cards.length;
+        updateCard();
+        updateProgress();
+        saveState();
+      }
+
+      // Deck Management
+      function renderDecks() {
+        elements.decksContainer.innerHTML = '';
+        Object.keys(state.decks).forEach(deckName => {
+          const deck = state.decks[deckName];
+          const deckEl = document.createElement('div');
+          deckEl.className = `deck-card ${deckName === state.currentDeck ? 'active' : ''}`;
+          deckEl.innerHTML = `
+            <h5>${deckName}</h5>
+            <p>${deck.cards.length} cards</p>
+            <div class="d-flex justify-content-between">
+              <button class="btn btn-sm btn-flash-secondary select-deck" data-deck="${deckName}">
+                Select
+              </button>
+              <button class="btn btn-sm btn-flash-secondary delete-deck" data-deck="${deckName}">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          `;
+          elements.decksContainer.appendChild(deckEl);
+        });
+
+        // Add event listeners to deck buttons
+        document.querySelectorAll('.select-deck').forEach(btn => {
+          btn.addEventListener('click', function() {
+            state.currentDeck = this.getAttribute('data-deck');
+            state.currentCardIndex = 0;
+            saveState();
+            renderDecks();
+            updateCard();
+            updateProgress();
+            updateStats();
+            switchView('study');
+          });
+        });
+
+        document.querySelectorAll('.delete-deck').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const deckName = this.getAttribute('data-deck');
+            if (confirm(`Delete deck "${deckName}"? This cannot be undone.`)) {
+              delete state.decks[deckName];
+              if (state.currentDeck === deckName) {
+                state.currentDeck = Object.keys(state.decks)[0] || '';
+                state.currentCardIndex = 0;
+              }
+              saveState();
+              renderDecks();
+              updateCard();
+              updateProgress();
+              updateStats();
+            }
+          });
+        });
+      }
+
+      // Modal Functions
+      function showAddCardModal() {
+        elements.questionInput.value = '';
+        elements.answerInput.value = '';
+        elements.cardModal.show();
+      }
+
+      function saveNewCard() {
+        // Preserve whitespace and newlines
+        const question = elements.questionInput.value.replace(/\n/g, '<br>');
+        const answer = elements.answerInput.value.replace(/\n/g, '<br>');
+        
+        if (question && answer) {
+            if (!state.decks[state.currentDeck]) {
+            state.decks[state.currentDeck] = { cards: [], stats: { mastered: 0, seen: 0 } };
+            }
+            
+            state.decks[state.currentDeck].cards.push({ question, answer });
+            state.currentCardIndex = state.decks[state.currentDeck].cards.length - 1;
+            saveState();
+            updateCard();
+            updateProgress();
+            updateStats();
+            renderDecks();
+            elements.cardModal.hide();
+        } else {
+            alert('Please enter both question and answer');
+        }
+        }
+
+      function showAddDeckModal() {
+        elements.deckNameInput.value = '';
+        elements.deckModal.show();
+      }
+
+      function saveNewDeck() {
+        const deckName = elements.deckNameInput.value.trim();
+        
+        if (deckName) {
+          if (state.decks[deckName]) {
+            alert('A deck with this name already exists');
+            return;
+          }
+          
+          state.decks[deckName] = { cards: [], stats: { mastered: 0, seen: 0 } };
+          state.currentDeck = deckName;
+          state.currentCardIndex = 0;
+          saveState();
+          renderDecks();
+          updateCard();
+          updateProgress();
+          updateStats();
+          elements.deckModal.hide();
+          switchView('study');
+        } else {
+          alert('Please enter a deck name');
+        }
+      }
+
+      // View Management
+      function switchView(view) {
+        elements.studyView.style.display = 'none';
+        elements.decksView.style.display = 'none';
+        elements.statsView.style.display = 'none';
+        
+        elements.studyTab.classList.remove('active');
+        elements.decksTab.classList.remove('active');
+        elements.statsTab.classList.remove('active');
+        
+        switch(view) {
+          case 'study':
+            elements.studyView.style.display = 'block';
+            elements.studyTab.classList.add('active');
+            break;
+          case 'decks':
+            elements.decksView.style.display = 'block';
+            elements.decksTab.classList.add('active');
+            break;
+          case 'stats':
+            elements.statsView.style.display = 'block';
+            elements.statsTab.classList.add('active');
+            updateStats();
+            break;
+        }
+      }
+
+      // Keyboard Navigation
+      function handleKeyPress(e) {
+        if (elements.studyView.style.display !== 'none') {
+          if (e.key === 'ArrowLeft') {
+            showPreviousCard();
+          } else if (e.key === 'ArrowRight') {
+            showNextCard();
+          } else if (e.key === ' ') {
+            e.preventDefault();
+            flipCard();
+          }
+        }
+      }
+
+      // Persistence
+      function saveState() {
+        localStorage.setItem('flashcardDecks', JSON.stringify(state.decks));
+        localStorage.setItem('currentDeck', state.currentDeck);
+        localStorage.setItem('currentCardIndex', state.currentCardIndex);
+      }
+    });
+  </script>
+
+  <!-- Social media/Youtube links -->
+<div class="social-links">
+  <a href="YOUR_YOUTUBE_URL" class="social-icon" title="YouTube" target="_blank">
+    <i class="fab fa-youtube"></i>
+  </a>
+  <a href="YOUR_TWITTER_URL" class="social-icon" title="Twitter" target="_blank">
+    <i class="fab fa-twitter"></i>
+  </a>
+  <a href="YOUR_INSTAGRAM_URL" class="social-icon" title="Instagram" target="_blank">
+    <i class="fab fa-instagram"></i>
+  </a>
+</div>
+</body>
+</html>
